@@ -1,0 +1,82 @@
+# Copy to resolver.toml. Missing keys use these defaults.
+
+[library]
+profile = "demo"                  # "demo" allows NC and SA with warnings; "commercial" allows CC0, CC BY, PD, own
+adapters = ["local_folder"]       # also "jamendo_api", "mtg_jamendo"
+local_folder = "library/"         # audio files plus licences.csv
+cache_dir = ".cache/resolver"
+
+[index]
+dir = "index/"
+segment_s = 10.0
+hop_s = 5.0
+max_track_s = 360.0
+min_segment_dbfs = -45.0
+
+[embed]
+model = "laion/larger_clap_music"
+batch_size = 16
+
+[brief]
+model = "claude-sonnet-5-5"
+web_search_tool = "web_search_20250305"   # check current versions before building
+web_search_max_uses = 3
+prompt_version = "v1"
+min_confidence_shown = 0.6
+
+[retrieve]
+per_query_top_k = 200
+rrf_k = 60
+mmr_lambda = 0.7
+vocal_penalty = 0.15
+tempo_penalty_per_10bpm = 0.1
+tempo_penalty_max = 0.3
+length_penalty = 0.2
+max_per_artist = 1
+coverage_min_segments = 50
+
+[no_match]
+z_threshold = 2.5                  # tuned on half the eval set
+background_samples = 500
+
+[hits]
+min_score = 0.35
+motion_width_px = 160
+
+[beats]
+engine = "beat_this"               # falls back to "librosa"
+checkpoint = "final0"
+
+[vad]
+engine = "silero"                  # falls back to "energy"
+
+[fit]
+allow_stretch = false
+max_stretch = 0.04
+loop_crossfade_ms = 30
+short_clip_s = 3.0
+long_clip_s = 90.0
+
+[mix]
+target_lufs = -14.0
+true_peak_dbtp = -1.0
+underscore_lu_below_dialogue = 12.0
+featured_lu_below_dialogue = 4.0
+duck_db = -14.0
+min_speech_margin_db = 10.0
+attack_ms = 80
+release_ms = 300
+music_in_source_threshold = 0.30
+original_gain_db_when_music = -6.0
+
+[sfx]
+enabled = false
+gain_db = -6.0
+
+[generation]
+provider = "none"
+
+[verify]
+max_hit_offset_s = 0.08
+max_av_duration_diff_s = 0.1
+lufs_tolerance_lu = 1.0

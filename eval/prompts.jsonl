@@ -1,0 +1,30 @@
+{"id": "in01", "category": "indian_tv", "prompt": "take this video put a tarak mehta ka ulta chasma famous fighting or long sequence music in the background and put caption when claude limit is reached mid session", "tests": ["R1", "R2", "R3", "R8"]}
+{"id": "in02", "category": "indian_tv", "prompt": "add CID ACP Pradyuman suspense music when the door opens", "tests": ["R1"]}
+{"id": "in03", "category": "indian_tv", "prompt": "Sarabhai vs Sarabhai style comic background music", "tests": ["R1", "R5"]}
+{"id": "in04", "category": "indian_tv", "prompt": "make it feel like a Shaktimaan entry scene", "tests": ["R1"]}
+{"id": "in05", "category": "indian_tv", "prompt": "saas bahu serial dramatic zoom music on every reaction", "tests": ["R1", "R4"]}
+{"id": "in06", "category": "indian_tv", "prompt": "doordarshan news intro type music at the start", "tests": ["R1"]}
+{"id": "bw01", "category": "bollywood", "prompt": "Dhoom machale bike chase vibe", "tests": ["R1", "R5"]}
+{"id": "bw02", "category": "bollywood", "prompt": "sad violin like a 90s bollywood breakup scene", "tests": ["R4"]}
+{"id": "bw03", "category": "bollywood", "prompt": "Singham entry music when he walks in", "tests": ["R1"]}
+{"id": "bw04", "category": "bollywood", "prompt": "hera pheri comedy confusion background music", "tests": ["R1", "R2"]}
+{"id": "bw05", "category": "bollywood", "prompt": "shaadi dhol beat for the dance part", "tests": ["R4"]}
+{"id": "an01", "category": "anime", "prompt": "naruto sadness and sorrow type music", "tests": ["R1"]}
+{"id": "an02", "category": "anime", "prompt": "dragon ball power up scream music when he raises his fist", "tests": ["R1"]}
+{"id": "an03", "category": "anime", "prompt": "studio ghibli calm countryside feel", "tests": ["R5"]}
+{"id": "an04", "category": "anime", "prompt": "jojo to be continued ending", "tests": ["R1", "R10"]}
+{"id": "we01", "category": "western", "prompt": "mission impossible heist music while he sneaks to the fridge", "tests": ["R1"]}
+{"id": "we02", "category": "western", "prompt": "curb your enthusiasm ending music", "tests": ["R1", "C9"]}
+{"id": "we03", "category": "western", "prompt": "epic hans zimmer style build for the reveal", "tests": ["R5"]}
+{"id": "we04", "category": "western", "prompt": "minecraft calm piano vibe for the sunset clip", "tests": ["R1"]}
+{"id": "we05", "category": "western", "prompt": "make it sound exactly like the pirates of the caribbean theme", "tests": ["R1", "L8"]}
+{"id": "md01", "category": "mood_only", "prompt": "upbeat lo-fi for a study vlog, no vocals", "tests": ["R4", "T2"]}
+{"id": "md02", "category": "mood_only", "prompt": "tense slow build that drops when the result appears", "tests": ["R4"]}
+{"id": "md03", "category": "mood_only", "prompt": "happy ukulele for a product demo with voiceover", "tests": ["R4", "F2"]}
+{"id": "md04", "category": "mood_only", "prompt": "dark trap beat for the gym montage", "tests": ["R4", "F3"]}
+{"id": "md05", "category": "mood_only", "prompt": "carnatic violin over a chiptune beat", "tests": ["R4", "B3"]}
+{"id": "md06", "category": "mood_only", "prompt": "make it funny", "tests": ["R10"]}
+{"id": "am01", "category": "ambiguous", "prompt": "either chase music or something suspenseful, whichever fits better", "tests": ["R3"]}
+{"id": "am02", "category": "ambiguous", "prompt": "is clip mein dhamakedar fight wala music daalo", "tests": ["R14", "R4"]}
+{"id": "am03", "category": "ambiguous", "prompt": "trending reel audio that everyone uses for fails", "tests": ["R1", "L9"]}
+{"id": "am04", "category": "ambiguous", "prompt": "dramatic music first then switch to comic when he falls", "tests": ["R15"]}
