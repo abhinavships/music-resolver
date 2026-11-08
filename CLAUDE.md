@@ -9,7 +9,7 @@ Prototype of a reference-to-music resolver for video edits (Cardboard hard probl
 
 ## Working rules
 
-- Build milestones in order (M3 next). End each milestone with `pytest` green and its acceptance tests in place.
+- Build milestones in order (M4 next). End each milestone with `pytest` green and its acceptance tests in place.
 - Name tests after scenario IDs, e.g. `test_l5_nd_always_excluded`.
 - Never fetch or place copyrighted audio a user names; reference names are text only.
 - Licence filtering happens before ranking. Unknown licence means excluded.
@@ -21,7 +21,7 @@ Prototype of a reference-to-music resolver for video edits (Cardboard hard probl
 
 ```bash
 pip install -e ".[dev]"
-pytest                 # offline suite
+pytest                 # offline suite (uses Beat This!/Silero if the ml extra is installed, else fallbacks)
 pytest -m live         # needs keys, models, network
 resolver fit clip.mp4 track.mp3 --out out
 ```

@@ -7,18 +7,20 @@ from pathlib import Path
 import numpy as np
 import soundfile as sf
 
-from . import media
-from .fit import gain_envelope
+from . import media, mixing, segment
+from .config import Config
 from .schemas import MixPlan
 
 SR = 48000
 
 
-def build_music_stem(plan: MixPlan, track: np.ndarray, n: int, sr: int = SR) -> np.ndarray:
-    """Place the track on the clip's timeline and apply gain, fades and ducking."""
+def place_music(plan: MixPlan, track: np.ndarray, n: int, sr: int = SR) -> np.ndarray:
+    """Put the (looped, if planned) track on the clip timeline with fades. No level changes."""
+    if plan.loop is not None:
+        track = segment.build_looped(track, sr, plan.loop)
     stem = np.zeros((n, 2), dtype=np.float32)
-    start = int(plan.music_delay * sr)
-    begin = int(plan.track_offset * sr)
+    start = int(round(plan.music_delay * sr))
+    begin = int(round(plan.track_offset * sr))
     length = min(n - start, len(track) - begin)
     if length > 0:
         stem[start:start + length] = track[begin:begin + length]
@@ -29,36 +31,43 @@ def build_music_stem(plan: MixPlan, track: np.ndarray, n: int, sr: int = SR) -> 
     fade_in = int(plan.fade_in * sr)
     if fade_in and length > 0:
         stem[start:start + fade_in] *= np.linspace(0.0, 1.0, fade_in, dtype=np.float32)[:, None]
-    return stem * gain_envelope(plan, n, sr)[:, None]
+    return stem
 
 
-def render(plan: MixPlan, out: str | Path, work_dir: str | Path) -> dict[str, str]:
+def load_original(clip_path: str, n: int, work: Path, sr: int = SR) -> np.ndarray:
+    """Clip audio on the clip timeline: padded by the audio stream's start offset (C6)."""
+    out = np.zeros((n, 2), dtype=np.float32)
+    if not media.has_audio(clip_path):
+        return out
+    audio = media.load_audio(clip_path, sr, work, mono=False)
+    lead = int(round(media.stream_offset(clip_path, "audio") * sr))
+    if lead < n:
+        take = min(n - lead, len(audio))
+        out[lead:lead + take] = audio[:take]
+    return out
+
+
+def render(
+    plan: MixPlan, out: str | Path, work_dir: str | Path, cfg: Config | None = None,
+) -> tuple[MixPlan, dict[str, str]]:
+    """Returns the plan with resolved levels, and the artifact paths."""
+    cfg = cfg or Config()
     work = Path(work_dir)
     work.mkdir(parents=True, exist_ok=True)
     n = int(plan.clip_duration * SR)
 
-    if media.has_audio(plan.clip_path):
-        original = media.load_audio(plan.clip_path, SR, work, mono=False)
-        padded = np.zeros((n, 2), dtype=np.float32)
-        padded[:min(n, len(original))] = original[:n]
-        original = padded
-    else:
-        original = np.zeros((n, 2), dtype=np.float32)
-
+    original = load_original(plan.clip_path, n, work)
     track = media.load_audio(plan.track_path, SR, work, mono=False)
-    stem = build_music_stem(plan, track, n)
-    mix = original + stem
+    music = place_music(plan, track, n)
+    original, stem, mix, resolved = mixing.mix(plan, original, music, SR, cfg.mix)
 
-    # One gain for the whole mix, so clipping protection never changes the balance.
-    peak = float(np.max(np.abs(mix))) if mix.size else 0.0
-    trim = 0.98 / peak if peak > 0.98 else 1.0
     paths = {
         "original": work / "original.wav",
         "music_stem": work / "music_stem.wav",
         "mix": work / "mix.wav",
     }
-    sf.write(paths["original"], original * trim, SR, subtype="FLOAT")
-    sf.write(paths["music_stem"], stem * trim, SR, subtype="FLOAT")
-    sf.write(paths["mix"], mix * trim, SR, subtype="FLOAT")
+    sf.write(paths["original"], original.astype(np.float32), SR, subtype="FLOAT")
+    sf.write(paths["music_stem"], stem.astype(np.float32), SR, subtype="FLOAT")
+    sf.write(paths["mix"], mix.astype(np.float32), SR, subtype="FLOAT")
     media.mux(plan.clip_path, paths["mix"], out)
-    return {**{k: str(v) for k, v in paths.items()}, "video": str(out)}
+    return resolved, {**{k: str(v) for k, v in paths.items()}, "video": str(out)}

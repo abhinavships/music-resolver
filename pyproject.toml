@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "music-resolver"
 version = "0.1.0"
 description = "Turn a music reference in an editing prompt into a licensed track fitted to the clip"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
   "numpy",
   "scipy",
@@ -14,11 +14,12 @@ dependencies = [
   "soundfile",
   "opencv-python-headless",
   "pydantic>=2",
+  "pyloudnorm",
 ]
 
 [project.optional-dependencies]
 dev = ["pytest"]
-ml = ["torch>=2.0", "transformers", "faiss-cpu", "silero-vad", "pyloudnorm", "beat-this"]
+ml = ["torch>=2.0", "transformers", "faiss-cpu", "silero-vad", "beat-this"]
 api = ["anthropic"]
 ui = ["playwright"]
 

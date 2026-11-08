@@ -40,15 +40,28 @@ z_threshold = 2.5                  # tuned on half the eval set
 background_samples = 500
 
 [hits]
-min_score = 0.35
+min_score = 0.35                   # below this, no hit sync (C7)
 motion_width_px = 160
+min_spacing_s = 0.5
+top_k = 5
+salience_z_low = 20.0              # peak z-score of no event (noise onsets reach ~15)
+salience_z_high = 60.0             # peak z-score of a clear event (synthetic impact ~100)
+motion_floor_px = 0.25             # motion change below this is treated as none
 
 [beats]
 engine = "beat_this"               # falls back to "librosa"
 checkpoint = "final0"
+beats_per_bar = 4
+min_confidence = 0.3               # below this, no hit sync (T5)
+onset_floor_db = 1.0               # mean onset strength at beats: none (pads ~0.1, noise ~1)
+onset_full_db = 5.0                # mean onset strength at beats: clear attacks (drums 10+)
 
 [vad]
 engine = "silero"                  # falls back to "energy"
+silero_threshold = 0.5
+silero_pad_ms = 100.0              # music is already down when a word starts
+min_region_s = 0.2
+max_gap_s = 0.3
 
 [fit]
 allow_stretch = false
@@ -56,16 +69,23 @@ max_stretch = 0.04
 loop_crossfade_ms = 30
 short_clip_s = 3.0
 long_clip_s = 90.0
+fade_in_s = 0.05
+fade_out_max_s = 0.5
 
 [mix]
 target_lufs = -14.0
 true_peak_dbtp = -1.0
 underscore_lu_below_dialogue = 12.0
 featured_lu_below_dialogue = 4.0
+featured_max_speech_fraction = 0.25   # less speech than this: featured role
+no_speech_reference_lufs = -23.0      # dialogue reference when there is no speech
 duck_db = -14.0
 min_speech_margin_db = 10.0
-attack_ms = 80
-release_ms = 300
+speech_margin_safety_db = 1.0
+attack_ms = 80.0
+release_ms = 300.0
+limiter_lookahead_ms = 5.0
+balance_warn_lu = 2.0                 # warn if limiting moves the dialogue/music balance this far
 music_in_source_threshold = 0.30
 original_gain_db_when_music = -6.0
 
@@ -80,3 +100,4 @@ provider = "none"
 max_hit_offset_s = 0.08
 max_av_duration_diff_s = 0.1
 lufs_tolerance_lu = 1.0
+music_present_dbfs = -60.0

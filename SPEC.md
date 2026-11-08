@@ -4,7 +4,7 @@ Turn a music reference in an editing prompt into three licensed, previewable tra
 
 The prototype answers one question: **does searching a decomposed brief beat searching the raw prompt?** Everything else exists to make that test fair and the demo usable.
 
-Written 2026-11-08. Milestones M1 and M2 are built and tested; this spec covers M3 to M9.
+Written 2026-11-08. Milestones M1 to M3 are built and tested; this spec covers M4 to M9.
 
 ---
 
@@ -21,18 +21,23 @@ Written 2026-11-08. Milestones M1 and M2 are built and tested; this spec covers 
 
 ---
 
-## 1. Current state (M1, M2)
+## 1. Current state (M1 to M3)
 
-| Module | Does | Known gaps (fixed in M3) |
+| Module | Does | Known gaps |
 | --- | --- | --- |
-| `fallback.py` | Option order, skip, no-match, charge approval | No "music slot" export on the last option |
-| `clip.py` | Speech regions (energy band), hit ranking (audio onsets + motion) | Motion timed by frame index, so phone video with variable frame rate drifts; speech stand-in fires on loud non-speech |
-| `fit.py` | Beat tracking (librosa), align strongest beat to the main hit, gain envelope | Beats, not downbeats; no loudness normalisation, so `music_gain_db` depends on how loud the file was mastered; no loop for short tracks; ramp release equals attack |
-| `render.py` | Mix under clip audio, mux with original video stream | No final loudness target |
-| `verify.py` | A/V duration, music present, clipping, speech masking, hit offset | Measured on pre-encode stems; no loudness or true-peak check |
-| `cli.py` | `resolver analyse`, `resolver fit` | No `resolve`, `refine`, `index`, `eval` |
+| `config.py` | Defaults for every tunable value; loads `resolver.toml`, rejects unknown keys | — |
+| `fallback.py` | Option order, skip, no-match, charge approval | No "music slot" export on the last option (L9, M7) |
+| `clip.py` | Hits from audio onsets plus motion, timed by frame timestamps (C5) and stream offsets (C6), scaled by salience (C7) | Salience thresholds calibrated on synthetic media |
+| `vad.py` | Silero VAD with the energy-band fallback | — |
+| `beats.py` | Beat This! beats and downbeats, librosa fallback (D4), pulse confidence (T5) | librosa bar lines are estimated from accents |
+| `fit.py` | Downbeat (or beat) aligned to the main hit (F1); no-hit (C7), short-clip (C9) and long-clip (C10) paths | Ending on a downbeat (F5) not built |
+| `segment.py` | Loops whole bars with an equal-power crossfade, snapped to the fitted beat period (T3) | Other segments of the same track (M7) |
+| `mixing.py` | Loudness-normalised music (T1), role levels (F2, F3), attack/release ducking with a per-region margin (F4), -14 LUFS / -1 dBTP mix (F6) | Source music detection (C3) |
+| `render.py` | Mix on the clip timeline, mux with the original video stream | — |
+| `verify.py` | A/V end times, music present, clipping, LUFS, true peak, speech masking, hit offset (same engine as the plan) | Measured on pre-encode stems |
+| `cli.py` | `resolver analyse`, `resolver fit`, `render_failed` report (D6) | No `resolve`, `refine`, `index`, `eval` |
 
-20 tests pass, all on synthetic media.
+51 tests pass with the `ml` extra installed. Without it, 49 pass and 2 skip (Beat This! and Silero). All tests use synthetic media.
 
 ---
 

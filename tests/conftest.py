@@ -8,6 +8,7 @@ import cv2
 import numpy as np
 import pytest
 import soundfile as sf
+from scipy.signal import lfilter
 
 from resolver import media
 
@@ -20,10 +21,26 @@ BPM = 120.0
 
 
 def _speech_like(n: int, sr: int, rng: np.random.Generator) -> np.ndarray:
-    """Band-limited noise with syllable-rate amplitude changes."""
+    """Voice-like signal: a glottal pulse train with a moving pitch, through
+    vowel formants, at syllable rate. Speech enough for Silero VAD as well as
+    the energy-band detector."""
     t = np.arange(n) / sr
-    carrier = sum(np.sin(2 * np.pi * f * t + rng.uniform(0, 6)) for f in (220, 660, 1100, 1800, 2600))
-    return 0.09 * carrier * (0.6 + 0.4 * np.sin(2 * np.pi * 4 * t))
+    f0 = 125 + 25 * np.sin(2 * np.pi * 1.3 * t) + 10 * np.sin(2 * np.pi * 3.1 * t)
+    pulses = (np.diff(np.floor(np.cumsum(f0 / sr)), prepend=0) > 0).astype(float)
+    source = lfilter([1], [1, -0.97], pulses) + 0.02 * rng.standard_normal(n)
+    vowels = [(730, 1090, 2440), (270, 2290, 3010), (300, 870, 2240), (530, 1840, 2480), (660, 1720, 2410)]
+    syllable = int(0.18 * sr)
+    out = np.zeros(n)
+    for k, s in enumerate(range(0, n, syllable)):
+        e = min(n, s + syllable)
+        seg = source[s:e]
+        y = np.zeros_like(seg)
+        for f, bw in zip(vowels[k % len(vowels)], (90, 110, 170)):
+            r = np.exp(-np.pi * bw / sr)
+            theta = 2 * np.pi * f / sr
+            y += lfilter([1 - r], [1, -2 * r * np.cos(theta), r * r], seg)
+        out[s:e] = y * (0.35 + 0.65 * np.sin(np.pi * np.arange(e - s) / syllable) ** 0.7)
+    return 0.3 * out / np.max(np.abs(out))
 
 
 def make_clip(path: Path, tmp: Path) -> None:

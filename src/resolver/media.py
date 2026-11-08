@@ -36,8 +36,36 @@ def stream_duration(path: str | Path, kind: str) -> float | None:
     return None
 
 
+def stream_span(path: str | Path, kind: str) -> tuple[float, float] | None:
+    """(start, end) of the first stream of `kind`, in container seconds."""
+    for stream in probe(path)["streams"]:
+        if stream["codec_type"] == kind and "duration" in stream:
+            start = float(stream.get("start_time", 0.0) or 0.0)
+            return start, start + float(stream["duration"])
+    return None
+
+
 def has_audio(path: str | Path) -> bool:
     return any(s["codec_type"] == "audio" for s in probe(path)["streams"])
+
+
+def format_start(path: str | Path) -> float:
+    """Container start time. The clip timeline's 0 s is this instant."""
+    return float(probe(path)["format"].get("start_time", 0.0) or 0.0)
+
+
+def stream_offset(path: str | Path, kind: str) -> float:
+    """Seconds from the container start to the first stream of `kind` (C6).
+
+    Decoded audio and OpenCV frame times both count from their own stream's
+    start, so add this to put them on the clip timeline.
+    """
+    info = probe(path)
+    start = float(info["format"].get("start_time", 0.0) or 0.0)
+    for stream in info["streams"]:
+        if stream["codec_type"] == kind:
+            return max(0.0, float(stream.get("start_time", start) or start) - start)
+    return 0.0
 
 
 def load_audio(path: str | Path, sr: int, tmp_dir: Path, mono: bool = True) -> np.ndarray:
@@ -53,7 +81,12 @@ def load_audio(path: str | Path, sr: int, tmp_dir: Path, mono: bool = True) -> n
 
 
 def mux(video: str | Path, audio_wav: str | Path, out: str | Path) -> None:
-    """Copy the video stream untouched and attach the new audio."""
+    """Copy the video stream untouched and attach the new audio.
+
+    ffmpeg rebases each input to its own start time, so the copied video keeps
+    its offset from the container start (C6) and the audio's 0 s lines up with
+    the container start, which is where the mix's timeline begins.
+    """
     _run([
         "ffmpeg", "-y", "-v", "error", "-i", str(video), "-i", str(audio_wav),
         "-map", "0:v:0", "-map", "1:a:0", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
