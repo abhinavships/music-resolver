@@ -9,7 +9,7 @@ Prototype of a reference-to-music resolver for video edits (Cardboard hard probl
 
 ## Working rules
 
-- Build milestones in order (M4 next). End each milestone with `pytest` green and its acceptance tests in place.
+- Milestones M1 to M9 are built. Open items are listed under "Known limits" in README.md. End each milestone with `pytest` green and its acceptance tests in place.
 - Name tests after scenario IDs, e.g. `test_l5_nd_always_excluded`.
 - Never fetch or place copyrighted audio a user names; reference names are text only.
 - Licence filtering happens before ranking. Unknown licence means excluded.

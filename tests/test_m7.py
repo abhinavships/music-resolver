@@ -61,6 +61,10 @@ def test_b1_strong_matches_with_reasons(toy):
     assert status == "ok" and len(cands) == 3
     assert cands[0].track.title == "Dhol Brawl"
     assert "dhol" in cands[0].reason and cands[0].attribution and cands[0].track.licence == "cc-by"
+    # Attributes the embedder cannot hear (flat across the library) are never claimed.
+    flat = cue("x", ["comic dhol"], instruments=["dhol"], mood=["slapstick"])
+    assert retrieve_mod.reasons(flat, index.segments_of("local_folder:sitar_romance.wav")[0],
+                                retrieve_mod.Scorer(index, emb)) == []
     assert searched["library_tracks"] == 12 and searched["queries"]["comic dhol fight"] == DHOL.queries
     assert "No Derivs" not in titles(cands) and "No Licence" not in titles(cands)
 

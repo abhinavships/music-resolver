@@ -4,7 +4,7 @@ Turn a music reference in an editing prompt into three licensed, previewable tra
 
 The prototype answers one question: **does searching a decomposed brief beat searching the raw prompt?** Everything else exists to make that test fair and the demo usable.
 
-Written 2026-11-08. Milestones M1 to M3 are built and tested; this spec covers M4 to M9.
+Written 2026-11-08. Milestones M1 to M3 were built when this was written; M4 to M9 were built on 2026-11-09 (see section 1 and README "Known limits").
 
 ---
 
@@ -21,7 +21,7 @@ Written 2026-11-08. Milestones M1 to M3 are built and tested; this spec covers M
 
 ---
 
-## 1. Current state (M1 to M3)
+## 1. Current state (M1 to M9)
 
 | Module | Does | Known gaps |
 | --- | --- | --- |
@@ -35,9 +35,16 @@ Written 2026-11-08. Milestones M1 to M3 are built and tested; this spec covers M
 | `mixing.py` | Loudness-normalised music (T1), role levels (F2, F3), attack/release ducking with a per-region margin (F4), -14 LUFS / -1 dBTP mix (F6) | Source music detection (C3) |
 | `render.py` | Mix on the clip timeline, mux with the original video stream | — |
 | `verify.py` | A/V end times, music present, clipping, LUFS, true peak, speech masking, hit offset (same engine as the plan) | Measured on pre-encode stems |
-| `cli.py` | `resolver analyse`, `resolver fit`, `render_failed` report (D6) | No `resolve`, `refine`, `index`, `eval` |
+| `library/` | Licence parsing and profile filter (L1 to L6); `local_folder`, `jamendo_api`, `mtg_jamendo` adapters | Jamendo and MTG adapters tested on recorded data only |
+| `embed.py`, `ingest.py` | CLAP segment embeddings (default `laion/clap-htsat-unfused`), tag-only fallback (D3), vocal_prob, bpm, LUFS, coverage, idempotent | `larger_clap_music` is degenerate as published |
+| `brief.py` | Claude + web search brief, rights guard, offline keyword map, retry (D5), cache (D8), refine | Live call untested here (no key) |
+| `retrieve.py` | Multi-query RRF, penalties (T2, T6, length), z no-match, slots (R3), one per artist (B5), MMR, reasons, coverage warnings (B4) | z threshold untuned |
+| `session.py`, `sfx.py`, `generation.py` | resolve / refine / pick / skip / own / generate, exclusions (R11 to R13), music-slot export (L9), effects layer (F7), generation interface | No generation provider |
+| `review.py`, `tool.py`, `mcp_server.py` | Review page with ratings export, blind eval pages, JSON tool contract, MCP wrapper | — |
+| `evaluate.py` | Conditions A/B/C, ratings, Krippendorff's alpha, threshold split, report | Needs labels, hand briefs, raters |
+| `cli.py` | `analyse`, `fit`, `index`, `brief`, `resolve`, `refine`, `pick`, `skip`, `own`, `eval`, `tool` | — |
 
-51 tests pass with the `ml` extra installed. Without it, 49 pass and 2 skip (Beat This! and Silero). All tests use synthetic media.
+135 tests pass and 3 skip (the M4 real-clip tests, until `fixtures/real/labels.json` exists) with the `ml`, `api`, `ui` and `mcp` extras installed. Retrieval tests use a synthetic toy library and a tone-based stand-in embedder; `pytest -m live` runs real CLAP and, with a key, a live brief.
 
 ---
 

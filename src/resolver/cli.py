@@ -202,6 +202,40 @@ def cmd_own(args: argparse.Namespace) -> int:
     return _print_report(report, paths)
 
 
+def cmd_eval(args: argparse.Namespace) -> int:
+    from . import evaluate
+    from .app import make_context
+    from .schemas import Brief, CueSpec
+
+    cfg = config_mod.load(args.config)
+    prompts = evaluate.read_jsonl(args.prompts)
+    if args.score:
+        labels = {r["id"]: r["matchable"] for r in evaluate.read_jsonl(args.labels) if r.get("matchable") is not None}
+        reports = [json.loads(p.read_text()) for p in sorted(Path(args.score).glob("picks/*/report.json"))]
+        rep = evaluate.score(args.score, prompts, labels, cfg, reports)
+        print(evaluate.markdown(rep))
+        return 0
+    ctx, notes = make_context(cfg, offline=args.offline, previews=False)
+    for n in notes:
+        print(f"note: {n}", file=sys.stderr)
+    if ctx.index is None:
+        return 4
+    hand = {}
+    for row in evaluate.read_jsonl(args.hand_briefs):
+        b = row["brief"]
+        hand[row["id"]] = Brief.model_validate(b) if "primary" in b else Brief(
+            version="hand", mode="offline", primary=CueSpec.model_validate(b))
+    conditions = tuple(c.strip() for c in args.conditions.split(","))
+    run = evaluate.run(prompts, ctx.index, ctx.embedder, cfg, args.out, hand, conditions, args.raters,
+                       offline=args.offline)
+    missing = [p["id"] for p in prompts if "C" in conditions and p["id"] not in hand]
+    if missing:
+        print(f"note: condition C skipped for {len(missing)} prompts without a hand brief", file=sys.stderr)
+    print(f"wrote {run.out}; rate the pages under {run.out / 'review'} then run "
+          f"`resolver eval --score {run.out}`")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="resolver")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -280,6 +314,18 @@ def main(argv: list[str] | None = None) -> int:
     own.add_argument("--speech")
     session_args(own, offline=False, previews=False)
     own.set_defaults(func=cmd_own)
+
+    ev = sub.add_parser("eval", help="run conditions A/B/C and write blind review pages, or --score them")
+    ev.add_argument("--prompts", default="eval/prompts.jsonl")
+    ev.add_argument("--conditions", default="A,B,C")
+    ev.add_argument("--hand-briefs", default="eval/hand_briefs.jsonl")
+    ev.add_argument("--labels", default="eval/labels.jsonl")
+    ev.add_argument("--raters", type=int, default=3)
+    ev.add_argument("--out", default="eval/run")
+    ev.add_argument("--offline", action="store_true")
+    ev.add_argument("--score", metavar="RUN_DIR", help="score a finished run from its ratings/ folder")
+    ev.add_argument("--config", help="resolver.toml (default: ./resolver.toml if present)")
+    ev.set_defaults(func=cmd_eval)
 
     tool = sub.add_parser("tool", help="agent contract: one JSON request on stdin, JSON on stdout")
     tool.set_defaults(func=lambda a: __import__("resolver.tool", fromlist=["main"]).main())

@@ -181,7 +181,9 @@ def reasons(cue: CueSpec, seg: int, scorer: Scorer) -> list[str]:
     sims = scorer.text([f"music with {a}" if a in cue.instruments else f"{a} music" for a in attrs])
     out = []
     for a, row in zip(attrs, sims):
-        if row[seg] >= np.percentile(row, 75):
+        # Top quartile, and strictly above the median: a flat row (the model has
+        # no notion of this word) must not count as a match for every segment.
+        if row[seg] >= np.percentile(row, 75) and row[seg] > np.median(row) + 1e-6:
             out.append(a)
     return out
 
