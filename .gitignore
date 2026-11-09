@@ -11,4 +11,5 @@ library/
 .cache/
 fixtures/real/*
 !fixtures/real/README.md
+!fixtures/real/NOTES.md
 .venv/

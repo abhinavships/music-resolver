@@ -18,3 +18,12 @@ Put these here for the M4 real-clip test:
 ```
 
 Label the hit by stepping through frames, and the speech regions by ear. Precision of 0.05 s is enough.
+
+Then run:
+
+```bash
+pytest tests/test_m4_real.py -v      # hit within 0.15 s of main_hit, speech recall >= 0.8
+resolver fit fixtures/real/clip.mp4 fixtures/real/track.mp3 --out out/real
+```
+
+Listen to `out/real/output.mp4` and write the listening note in `NOTES.md` (committed; the media is not).
