@@ -1,0 +1,183 @@
+# Offline brief (D1, D2): keyword -> brief attributes. Matching is on lowercase whole words or phrases.
+
+[keywords]
+fight = { mood = ["action", "intense"], instruments = ["percussion", "drums"], energy = "high", cue_type = "bed", role = "featured" }
+fighting = { mood = ["action", "intense"], instruments = ["percussion", "drums"], energy = "high", role = "featured" }
+dhamakedar = { mood = ["explosive", "action"], instruments = ["percussion", "drums"], energy = "high", role = "featured" }
+chase = { mood = ["urgent", "action"], instruments = ["drums", "strings"], energy = "high", tempo = [130, 170], role = "featured" }
+comic = { mood = ["playful", "quirky", "comic"], energy = "medium" }
+comedy = { mood = ["playful", "quirky", "comic"], energy = "medium" }
+funny = { mood = ["playful", "quirky", "comic"], energy = "medium" }
+suspense = { mood = ["suspense", "tense", "mysterious"], instruments = ["strings", "synth"], energy = "medium" }
+suspenseful = { mood = ["suspense", "tense"], instruments = ["strings"], energy = "medium" }
+tense = { mood = ["tense", "suspense"], energy = "medium" }
+dramatic = { mood = ["dramatic"], instruments = ["orchestral", "strings"], energy = "high" }
+sad = { mood = ["sad", "melancholic"], instruments = ["piano", "strings"], energy = "low", tempo = [60, 90] }
+sadness = { mood = ["sad", "melancholic"], instruments = ["piano", "flute"], energy = "low", tempo = [60, 90] }
+calm = { mood = ["calm", "peaceful"], instruments = ["piano"], energy = "low", tempo = [60, 95], role = "underscore" }
+epic = { mood = ["epic", "heroic"], instruments = ["orchestral", "brass", "drums"], energy = "high", role = "featured" }
+happy = { mood = ["happy", "bright"], energy = "medium" }
+upbeat = { mood = ["upbeat", "happy"], energy = "medium", tempo = [100, 130] }
+dark = { mood = ["dark"], energy = "medium" }
+heist = { mood = ["sneaky", "suspense"], instruments = ["bass", "percussion"], energy = "medium" }
+sneak = { mood = ["sneaky", "playful"], instruments = ["pizzicato strings"], energy = "low" }
+entry = { mood = ["heroic", "powerful"], instruments = ["brass", "drums"], energy = "high", cue_type = "stinger", role = "featured" }
+intro = { mood = ["bright"], cue_type = "stinger" }
+ending = { mood = ["closing"], cue_type = "ending" }
+build = { mood = ["rising", "tense"], cue_type = "build", energy = "high" }
+"power up" = { mood = ["rising", "powerful"], instruments = ["drums", "brass"], energy = "high", cue_type = "build", role = "featured" }
+dance = { mood = ["festive", "energetic"], instruments = ["dhol", "percussion"], energy = "high", tempo = [110, 140], role = "featured" }
+sequence = { mood = ["building", "dramatic"], instruments = ["strings", "drums"], energy = "medium", cue_type = "build" }
+montage = { energy = "high", role = "featured" }
+gym = { mood = ["energetic", "aggressive"], energy = "high", role = "featured" }
+vlog = { role = "underscore" }
+voiceover = { role = "underscore" }
+"lo-fi" = { mood = ["chill", "relaxed"], instruments = ["lo-fi beat", "keys"], energy = "low", tempo = [70, 90], role = "underscore" }
+trap = { mood = ["dark", "aggressive"], instruments = ["808 bass", "hi-hats"], energy = "high", tempo = [130, 150] }
+ukulele = { instruments = ["ukulele"], mood = ["happy"] }
+violin = { instruments = ["violin"] }
+piano = { instruments = ["piano"] }
+dhol = { instruments = ["dhol"], mood = ["festive"], energy = "high" }
+tabla = { instruments = ["tabla"] }
+carnatic = { instruments = ["carnatic violin", "mridangam"], mood = ["indian classical"] }
+chiptune = { instruments = ["chiptune", "8-bit synth"] }
+zoom = { cue_type = "stinger", mood = ["dramatic"] }
+reaction = { cue_type = "stinger" }
+shaadi = { mood = ["festive", "celebration"], instruments = ["dhol", "shehnai"], energy = "high" }
+bollywood = { mood = ["filmi"], instruments = ["strings", "tabla"] }
+"90s" = { mood = ["nostalgic"] }
+countryside = { mood = ["pastoral", "calm"], instruments = ["acoustic guitar", "flute"], energy = "low" }
+fails = { mood = ["comic", "playful"], cue_type = "stinger" }
+news = { mood = ["formal", "bright"], instruments = ["synth", "brass"], cue_type = "stinger" }
+
+# Named references: never searched for audio; mapped to a sound description only.
+[references."tarak mehta"]
+canonical = "Taarak Mehta Ka Ooltah Chashmah"
+kind = "show"
+aliases = ["tarak mehta ka ulta chasma", "taarak mehta", "tmkoc"]
+mood = ["comic", "playful", "slapstick"]
+instruments = ["dhol", "tabla", "harmonium"]
+energy = "high"
+
+[references."cid"]
+canonical = "C.I.D."
+kind = "show"
+aliases = ["acp pradyuman"]
+mood = ["suspense", "dramatic"]
+instruments = ["synth", "strings", "percussion"]
+
+[references."sarabhai vs sarabhai"]
+canonical = "Sarabhai vs Sarabhai"
+kind = "show"
+aliases = ["sarabhai"]
+mood = ["comic", "witty", "light"]
+instruments = ["keys", "strings"]
+
+[references."shaktimaan"]
+canonical = "Shaktimaan"
+kind = "show"
+mood = ["heroic", "retro"]
+instruments = ["synth", "brass", "drums"]
+energy = "high"
+
+[references."saas bahu"]
+canonical = "saas-bahu TV serials"
+kind = "show"
+aliases = ["saas bahu serial"]
+mood = ["dramatic", "melodramatic"]
+instruments = ["strings", "tabla", "percussion hits"]
+
+[references."doordarshan"]
+canonical = "Doordarshan"
+kind = "show"
+mood = ["retro", "formal"]
+instruments = ["synth", "shehnai"]
+
+[references."dhoom"]
+canonical = "Dhoom"
+kind = "film"
+aliases = ["dhoom machale"]
+mood = ["energetic", "action"]
+instruments = ["electric guitar", "drums", "synth"]
+energy = "high"
+
+[references."singham"]
+canonical = "Singham"
+kind = "film"
+mood = ["heroic", "powerful"]
+instruments = ["drums", "brass", "chorus"]
+energy = "high"
+
+[references."hera pheri"]
+canonical = "Hera Pheri"
+kind = "film"
+mood = ["comic", "chaotic"]
+instruments = ["harmonium", "tabla", "brass"]
+
+[references."naruto"]
+canonical = "Naruto"
+kind = "show"
+mood = ["sad", "melancholic"]
+instruments = ["shakuhachi", "strings"]
+energy = "low"
+
+[references."dragon ball"]
+canonical = "Dragon Ball"
+kind = "show"
+mood = ["rising", "powerful"]
+instruments = ["electric guitar", "brass", "drums"]
+energy = "high"
+
+[references."studio ghibli"]
+canonical = "Studio Ghibli"
+kind = "artist"
+aliases = ["ghibli"]
+mood = ["gentle", "pastoral", "whimsical"]
+instruments = ["piano", "strings", "flute"]
+energy = "low"
+
+[references."jojo"]
+canonical = "JoJo's Bizarre Adventure"
+kind = "show"
+mood = ["groovy", "abrupt"]
+instruments = ["bass guitar", "synth"]
+
+[references."mission impossible"]
+canonical = "Mission: Impossible"
+kind = "film"
+mood = ["sneaky", "suspense", "urgent"]
+instruments = ["strings", "percussion", "brass"]
+
+[references."curb your enthusiasm"]
+canonical = "Curb Your Enthusiasm"
+kind = "show"
+mood = ["comic", "quirky"]
+instruments = ["tuba", "mandolin", "bouncy brass"]
+
+[references."hans zimmer"]
+canonical = "Hans Zimmer"
+kind = "artist"
+mood = ["epic", "rising"]
+instruments = ["orchestral", "low brass", "synth", "drums"]
+energy = "high"
+
+[references."minecraft"]
+canonical = "Minecraft"
+kind = "game"
+mood = ["calm", "nostalgic"]
+instruments = ["piano"]
+energy = "low"
+
+[references."pirates of the caribbean"]
+canonical = "Pirates of the Caribbean"
+kind = "film"
+mood = ["adventurous", "epic"]
+instruments = ["orchestral", "strings", "brass"]
+energy = "high"
+
+[references."trending reel audio"]
+canonical = "trending reel audio"
+kind = "trend"
+aliases = ["trending audio", "trending sound"]
+mood = ["comic"]
+instruments = []

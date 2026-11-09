@@ -91,6 +91,15 @@ def cmd_index(args: argparse.Namespace) -> int:
     return 4 if embedder is None and not args.tags_only else 0
 
 
+def cmd_brief(args: argparse.Namespace) -> int:
+    from .brief import make_brief
+
+    cfg = config_mod.load(args.config)
+    b = make_brief(args.prompt, cfg, offline=args.offline, use_cache=not args.no_cache)
+    print(b.model_dump_json(indent=2))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="resolver")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -118,6 +127,13 @@ def main(argv: list[str] | None = None) -> int:
     index.add_argument("--config", help="resolver.toml (default: ./resolver.toml if present)")
     index.add_argument("--tags-only", action="store_true", help="skip CLAP; tag search only (D3)")
     index.set_defaults(func=cmd_index)
+
+    brief = sub.add_parser("brief", help="turn a prompt into a music brief (prints brief.json)")
+    brief.add_argument("prompt")
+    brief.add_argument("--offline", action="store_true", help="keyword map only, no model call")
+    brief.add_argument("--no-cache", action="store_true")
+    brief.add_argument("--config", help="resolver.toml (default: ./resolver.toml if present)")
+    brief.set_defaults(func=cmd_brief)
 
     args = parser.parse_args(argv)
     return args.func(args)

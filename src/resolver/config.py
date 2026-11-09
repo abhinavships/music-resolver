@@ -50,10 +50,11 @@ class EmbedConfig(_Section):
 
 class BriefConfig(_Section):
     model: str = "claude-sonnet-5-5"
-    web_search_tool: str = "web_search_20250305"
+    web_search_tool: str = "web_search_20260209"
     web_search_max_uses: int = 3
     prompt_version: str = "v1"
     min_confidence_shown: float = 0.6
+    server_fallback: bool = True
 
 
 class RetrieveConfig(_Section):

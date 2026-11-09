@@ -25,10 +25,11 @@ zero_shot_scale = 100.0           # logit scale for zero-shot tagging (vocal_pro
 
 [brief]
 model = "claude-sonnet-5-5"
-web_search_tool = "web_search_20250305"   # check current versions before building
+web_search_tool = "web_search_20260209"   # dynamic-filtering variant for Sonnet 5.5; checked 2026-11-09
 web_search_max_uses = 3
 prompt_version = "v1"
 min_confidence_shown = 0.6
+server_fallback = true            # on a refusal, the API reroutes to a fallback model ("default" mode)
 
 [retrieve]
 per_query_top_k = 200

@@ -1,0 +1,6 @@
+{"music_requested": "explicit", "named_reference": null,
+ "primary": {"label": "upbeat vlog bed", "cue_type": "bed", "mood": ["upbeat", "happy"], "energy": "medium", "tempo_bpm": [100, 120], "instruments": ["ukulele", "claps"], "avoid": [], "vocals": "none", "mix_role": "underscore",
+   "queries": ["happy ukulele and claps background for a vlog", "light upbeat acoustic underscore", "cheerful acoustic instrumental with ukulele"]},
+ "alternatives": [], "deferred_cues": [], "sfx_wanted": false,
+ "ignored_instructions": ["add captions", "cut the first two seconds", "colour grade warmer"],
+ "notes_for_user": []}

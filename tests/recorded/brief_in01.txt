@@ -1,0 +1,16 @@
+I searched for the show's music. Here is the brief.
+
+```json
+{
+  "music_requested": "explicit",
+  "named_reference": {"raw": "tarak mehta ka ulta chasma", "canonical": "Taarak Mehta Ka Ooltah Chashmah", "kind": "show", "available": false, "confidence": 0.86, "sources": ["https://en.wikipedia.org/wiki/Taarak_Mehta_Ka_Ooltah_Chashmah"]},
+  "primary": {"label": "comic fight underscore", "cue_type": "bed", "mood": ["comic", "slapstick", "chaotic"], "energy": "high", "tempo_bpm": [130, 160], "instruments": ["dhol", "tabla", "harmonium", "brass stabs"], "avoid": [], "vocals": "none", "mix_role": "featured",
+    "queries": ["fast comic Indian percussion with dhol and tabla, slapstick fight", "chaotic comedy chase music with harmonium and brass stabs", "Tarak Mehta style comic fight music", "playful high energy Indian TV comedy background"]},
+  "alternatives": [{"label": "long comic sequence bed", "cue_type": "loop", "mood": ["comic", "light"], "energy": "medium", "tempo_bpm": [100, 125], "instruments": ["harmonium", "tabla", "flute"], "avoid": [], "vocals": "none", "mix_role": "underscore",
+    "queries": ["light comic Indian background loop with harmonium and tabla", "gentle playful sitcom underscore, Indian instruments", "same tune as the Taarak Mehta theme melody"]}],
+  "deferred_cues": [],
+  "sfx_wanted": true,
+  "ignored_instructions": ["put caption when claude limit is reached mid session"],
+  "notes_for_user": ["The original show music is not available; matching its sound instead."]
+}
+```
