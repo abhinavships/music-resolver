@@ -22,6 +22,7 @@ dev = ["pytest"]
 ml = ["torch>=2.0", "transformers", "faiss-cpu", "silero-vad", "beat-this"]
 api = ["anthropic"]
 ui = ["playwright"]
+mcp = ["mcp"]
 
 [project.scripts]
 resolver = "resolver.cli:main"
@@ -34,3 +35,6 @@ testpaths = ["tests"]
 pythonpath = ["src"]
 markers = ["live: needs network, API keys, model downloads or real media"]
 addopts = "-m 'not live'"
+
+[tool.setuptools.package-data]
+resolver = ["data/*.txt", "data/*.toml"]

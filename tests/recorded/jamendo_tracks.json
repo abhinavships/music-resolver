@@ -1,0 +1,26 @@
+{
+  "headers": {"status": "success", "code": 0, "error_message": "", "warnings": "", "results_count": 4},
+  "results": [
+    {"id": "1001", "name": "Dhol Street", "duration": 182, "artist_id": "77", "artist_name": "Desi Beats",
+     "audio": "https://prod-1.storage.jamendo.com/?trackid=1001&format=mp31",
+     "audiodownload": "https://prod-1.storage.jamendo.com/download/track/1001/mp32/",
+     "audiodownload_allowed": true, "shareurl": "https://www.jamendo.com/track/1001",
+     "license_ccurl": "http://creativecommons.org/licenses/by/3.0/",
+     "musicinfo": {"vocalinstrumental": "instrumental", "speed": "high",
+                   "tags": {"genres": ["world", "indian"], "instruments": ["dhol", "percussion"], "vartags": ["energetic"]}}},
+    {"id": "1002", "name": "Tabla Night", "duration": 240, "artist_id": "78", "artist_name": "Raga Lab",
+     "audiodownload": "https://prod-1.storage.jamendo.com/download/track/1002/mp32/",
+     "audiodownload_allowed": true, "shareurl": "https://www.jamendo.com/track/1002",
+     "license_ccurl": "http://creativecommons.org/licenses/by-nc-sa/3.0/",
+     "musicinfo": {"vocalinstrumental": "instrumental", "tags": {"genres": ["indian"], "instruments": ["tabla"], "vartags": []}}},
+    {"id": "1003", "name": "Locked", "duration": 200, "artist_id": "79", "artist_name": "Nope",
+     "audiodownload": "", "audiodownload_allowed": false, "shareurl": "https://www.jamendo.com/track/1003",
+     "license_ccurl": "http://creativecommons.org/licenses/by/3.0/",
+     "musicinfo": {"tags": {"genres": ["indian"], "instruments": [], "vartags": []}}},
+    {"id": "1004", "name": "No Remix", "duration": 150, "artist_id": "80", "artist_name": "Strict",
+     "audiodownload": "https://prod-1.storage.jamendo.com/download/track/1004/mp32/",
+     "audiodownload_allowed": true, "shareurl": "https://www.jamendo.com/track/1004",
+     "license_ccurl": "http://creativecommons.org/licenses/by-nd/3.0/",
+     "musicinfo": {"tags": {"genres": ["indian"], "instruments": ["sitar"], "vartags": []}}}
+  ]
+}

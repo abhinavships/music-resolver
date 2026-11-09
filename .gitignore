@@ -2,12 +2,12 @@ __pycache__/
 *.pyc
 *.egg-info/
 .pytest_cache/
-out/
+/out/
 build/
 dist/
 resolver.toml
-index/
-library/
+/index/
+/library/
 .cache/
 fixtures/real/*
 !fixtures/real/README.md

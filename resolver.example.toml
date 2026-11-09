@@ -5,6 +5,9 @@ profile = "demo"                  # "demo" allows NC and SA with warnings; "comm
 adapters = ["local_folder"]       # also "jamendo_api", "mtg_jamendo"
 local_folder = "library/"         # audio files plus licences.csv
 cache_dir = ".cache/resolver"
+jamendo_tags = ["world", "indian", "comedy", "soundtrack", "action", "percussion", "funk", "orchestral", "electronic", "ambient"]
+jamendo_limit = 2000              # tracks fetched across the tags above
+mtg_jamendo_root = "data/mtg-jamendo/"
 
 [index]
 dir = "index/"
@@ -12,10 +15,13 @@ segment_s = 10.0
 hop_s = 5.0
 max_track_s = 360.0
 min_segment_dbfs = -45.0
+coverage_threshold = 0.25         # zero-shot cosine for "music with <instrument>"
+coverage_instruments = ["dhol", "tabla", "harmonium", "brass", "shehnai", "sitar", "taiko", "orchestral", "synth", "guitar", "piano"]
 
 [embed]
 model = "laion/larger_clap_music"
 batch_size = 16
+zero_shot_scale = 100.0           # logit scale for zero-shot tagging (vocal_prob)
 
 [brief]
 model = "claude-sonnet-5-5"

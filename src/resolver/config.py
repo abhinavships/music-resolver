@@ -21,6 +21,12 @@ class LibraryConfig(_Section):
     adapters: list[str] = ["local_folder"]
     local_folder: str = "library/"
     cache_dir: str = ".cache/resolver"
+    jamendo_tags: list[str] = [
+        "world", "indian", "comedy", "soundtrack", "action", "percussion", "funk", "orchestral",
+        "electronic", "ambient",
+    ]
+    jamendo_limit: int = 2000
+    mtg_jamendo_root: str = "data/mtg-jamendo/"
 
 
 class IndexConfig(_Section):
@@ -29,11 +35,17 @@ class IndexConfig(_Section):
     hop_s: float = 5.0
     max_track_s: float = 360.0
     min_segment_dbfs: float = -45.0
+    coverage_threshold: float = 0.25
+    coverage_instruments: list[str] = [
+        "dhol", "tabla", "harmonium", "brass", "shehnai", "sitar", "taiko", "orchestral", "synth",
+        "guitar", "piano",
+    ]
 
 
 class EmbedConfig(_Section):
     model: str = "laion/larger_clap_music"
     batch_size: int = 16
+    zero_shot_scale: float = 100.0
 
 
 class BriefConfig(_Section):

@@ -99,3 +99,85 @@ class VerifyReport(BaseModel):
     true_peak_dbtp: float | None = None
     attribution: str | None = None
     licence_warnings: list[str] = Field(default_factory=list)
+
+
+# --- Library, brief and retrieval (M5 to M7) ---------------------------------
+
+Licence = Literal["cc0", "cc-by", "cc-by-sa", "cc-by-nc", "cc-by-nc-sa", "pd", "own"]
+
+
+class TrackRecord(BaseModel):
+    track_id: str                 # "<adapter>:<id>"
+    title: str
+    artist: str
+    duration: float
+    path: str                     # local cached audio
+    source_url: str | None = None
+    licence: Licence
+    licence_url: str | None = None
+    tags: list[str] = Field(default_factory=list)
+    bpm: float | None = None
+    vocal_prob: float | None = None
+    lufs: float | None = None
+
+
+class NamedReference(BaseModel):
+    raw: str
+    canonical: str | None = None
+    kind: Literal["show", "film", "song", "game", "artist", "trend", "unknown"] = "unknown"
+    available: bool = False       # always False in the prototype
+    confidence: float = 0.0
+    sources: list[str] = Field(default_factory=list)
+
+
+class CueSpec(BaseModel):
+    label: str
+    cue_type: Literal["bed", "stinger", "build", "loop", "ending"] = "bed"
+    mood: list[str] = Field(default_factory=list)
+    energy: Literal["low", "medium", "high"] = "medium"
+    tempo_bpm: tuple[int, int] | None = None
+    instruments: list[str] = Field(default_factory=list)
+    avoid: list[str] = Field(default_factory=list)
+    vocals: Literal["none", "ok", "required"] = "none"
+    mix_role: Literal["underscore", "featured"] = "underscore"
+    queries: list[str] = Field(default_factory=list)
+
+
+class Brief(BaseModel):
+    version: str
+    mode: Literal["online", "offline"]
+    music_requested: Literal["explicit", "implied", "none"] = "explicit"
+    named_reference: NamedReference | None = None
+    primary: CueSpec
+    alternatives: list[CueSpec] = Field(default_factory=list, max_length=2)
+    deferred_cues: list[str] = Field(default_factory=list)
+    sfx_wanted: bool = False
+    ignored_instructions: list[str] = Field(default_factory=list)
+    notes_for_user: list[str] = Field(default_factory=list)
+
+    def cues(self) -> list[CueSpec]:
+        return [self.primary, *self.alternatives]
+
+
+class Candidate(BaseModel):
+    rank: int
+    track: TrackRecord
+    segment_start: float
+    cue_label: str
+    score: float
+    z: float
+    reason: str
+    warnings: list[str] = Field(default_factory=list)
+    attribution: str | None = None
+    preview_path: str | None = None
+
+
+class ResolveResult(BaseModel):
+    status: Literal["ok", "no_match", "needs_input", "error"]
+    brief: Brief | None = None
+    candidates: list[Candidate] = Field(default_factory=list)
+    searched: dict = Field(default_factory=dict)
+    fallback_option: str = "licensed"
+    coverage_warnings: list[str] = Field(default_factory=list)
+    message: str = ""
+    quoted_cost: float | None = None

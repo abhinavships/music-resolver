@@ -74,6 +74,23 @@ def cmd_fit(args: argparse.Namespace) -> int:
     return 0 if report.passed else 1
 
 
+def cmd_index(args: argparse.Namespace) -> int:
+    from .embed import make_embedder
+    from .ingest import ingest
+    from .library import make_adapters
+
+    cfg = config_mod.load(args.config)
+    embedder = None if args.tags_only else make_embedder(cfg.embed.model, cfg.embed.batch_size, cfg.library.cache_dir)
+    if embedder is None and not args.tags_only:
+        print(f"warning: {cfg.embed.model} unavailable; building a tag-only index (D3)", file=sys.stderr)
+    index = ingest(cfg, make_adapters(cfg), embedder)
+    thin = [k for k, v in index.coverage["instruments"].items() if v["segments"] < cfg.retrieve.coverage_min_segments]
+    if thin:
+        print(f"coverage: fewer than {cfg.retrieve.coverage_min_segments} segments for {', '.join(thin)}")
+    print(f"wrote {Path(cfg.index.dir) / 'coverage.json'}")
+    return 4 if embedder is None and not args.tags_only else 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="resolver")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -96,6 +113,11 @@ def main(argv: list[str] | None = None) -> int:
     fit.add_argument("--duck-db", type=float, help="minimum extra reduction during speech, in dB (default: config)")
     fit.add_argument("--config", help="resolver.toml (default: ./resolver.toml if present)")
     fit.set_defaults(func=cmd_fit)
+
+    index = sub.add_parser("index", help="ingest library adapters, build the index, write coverage.json")
+    index.add_argument("--config", help="resolver.toml (default: ./resolver.toml if present)")
+    index.add_argument("--tags-only", action="store_true", help="skip CLAP; tag search only (D3)")
+    index.set_defaults(func=cmd_index)
 
     args = parser.parse_args(argv)
     return args.func(args)
