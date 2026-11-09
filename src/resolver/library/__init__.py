@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from ..config import Config
+from .local_folder import LocalFolder  # noqa: F401
 from .base import Adapter, FilterStats, Stub, attribution, filter_stubs, licence_warnings, parse_licence  # noqa: F401
 
 

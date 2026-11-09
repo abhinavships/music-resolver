@@ -45,8 +45,13 @@ def plan_mix(
     clip: ClipAnalysis, track_path: str, y: np.ndarray, hit_time: float | None = None,
     sr: int = SR, cfg: Config | None = None, role: str | None = None,
     duck_db: float | None = None, music_lu_below_dialogue: float | None = None,
+    prefer_start: float | None = None,
 ) -> MixPlan:
-    """`hit_time` set by the caller is a user override (C11) and is always synced to."""
+    """`hit_time` set by the caller is a user override (C11) and is always synced to.
+
+    `prefer_start` is the retrieved segment's start (7.4): among aligned beats
+    that cover the clip, the one putting the music start nearest it wins.
+    """
     cfg = cfg or Config()
     track_duration = len(y) / sr
     dur = clip.duration
@@ -86,7 +91,11 @@ def plan_mix(
 
     def choose(cands: list[tuple[float, float]], length: float) -> tuple[float, float] | None:
         valid = [c for c in cands if c[0] - hit_time >= 0 and c[0] - hit_time + dur <= length]
-        return max(valid, key=lambda c: c[1]) if valid else None
+        if not valid:
+            return None
+        if prefer_start is not None:
+            return min(valid, key=lambda c: (abs(c[0] - hit_time - prefer_start), -c[1]))
+        return max(valid, key=lambda c: c[1])
 
     beat: float | None = None
     offset = delay = 0.0
@@ -115,8 +124,12 @@ def plan_mix(
             # Stinger behaviour (C9): open on the track's strongest onset.
             offset = _strongest_onset(b.onset_env, track_duration, dur, sr)
         elif b.downbeats:
-            # C7, T5: no sync, but still start on a bar line.
-            offset = b.downbeats[0]
+            # C7, T5: no sync, but still start on a bar line (the first one in the chosen segment).
+            start = prefer_start or 0.0
+            later = [d for d in b.downbeats if d >= start - 1e-3 and d + dur <= track_duration]
+            offset = later[0] if later else b.downbeats[0]
+        elif prefer_start:
+            offset = prefer_start
         if offset + dur > track_duration:
             loop = segment.choose_loop(bars, track_duration, offset + dur + 0.1, cfg.fit.loop_crossfade_ms, b.times)
 

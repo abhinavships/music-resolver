@@ -46,15 +46,21 @@ class ToyEmbedder:
 
     def text(self, texts: list[str]) -> np.ndarray:
         self.calls["text"] += len(texts)
-        out = np.full((len(texts), len(VOCAB)), 0.02, dtype=np.float32)
+        # The last dimension is "words the toy cannot hear": audio never has it,
+        # so text with no known word is orthogonal to the whole library.
+        out = np.full((len(texts), len(VOCAB) + 1), 0.02, dtype=np.float32)
         for i, t in enumerate(texts):
-            for w in _words(t):
+            words = _words(t)
+            for w in words:
                 out[i, VOCAB.index(w)] += 1.0
+            if not words:
+                out[i] = 0.0
+                out[i, -1] = 1.0
         return out / np.linalg.norm(out, axis=1, keepdims=True)
 
     def audio(self, clips: list[np.ndarray]) -> np.ndarray:
         self.calls["audio"] += len(clips)
-        out = np.zeros((len(clips), len(VOCAB)), dtype=np.float32)
+        out = np.zeros((len(clips), len(VOCAB) + 1), dtype=np.float32)
         for i, c in enumerate(clips):
             c = np.asarray(c, dtype=np.float32)
             frames = [c[s:s + WIN] for s in range(0, max(1, len(c) - WIN + 1), WIN)] or [c]
@@ -66,7 +72,7 @@ class ToyEmbedder:
             for j, w in enumerate(VOCAB):
                 band = np.abs(freqs - FREQS[w]) < 6
                 out[i, j] = spec[band].sum()
-            out[i] = np.sqrt(out[i]) + 1e-3 * (out[i].max() ** 0.5 + 1e-6)
+            out[i, :-1] = np.sqrt(out[i, :-1]) + 1e-3 * (out[i, :-1].max() ** 0.5 + 1e-6)
         return out / np.maximum(np.linalg.norm(out, axis=1, keepdims=True), 1e-12)
 
 

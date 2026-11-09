@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 import soundfile as sf
 
-from . import media, mixing, segment
+from . import media, mixing, segment, sfx as sfx_mod
 from .config import Config
 from .schemas import MixPlan
 
@@ -59,7 +59,8 @@ def render(
     original = load_original(plan.clip_path, n, work)
     track = media.load_audio(plan.track_path, SR, work, mono=False)
     music = place_music(plan, track, n)
-    original, stem, mix, resolved = mixing.mix(plan, original, music, SR, cfg.mix)
+    extra = sfx_mod.render_sfx(plan.sfx, n, SR, work) if plan.sfx else None
+    original, stem, mix, resolved = mixing.mix(plan, original, music, SR, cfg.mix, extra=extra)
 
     paths = {
         "original": work / "original.wav",
@@ -71,3 +72,12 @@ def render(
     sf.write(paths["mix"], mix.astype(np.float32), SR, subtype="FLOAT")
     media.mux(plan.clip_path, paths["mix"], out)
     return resolved, {**{k: str(v) for k, v in paths.items()}, "video": str(out)}
+
+
+def preview(video: str | Path, out: str | Path, height: int = 360) -> None:
+    """Small, fast encode of a rendered candidate for the review page."""
+    media._run([
+        "ffmpeg", "-y", "-v", "error", "-i", str(video), "-vf", f"scale=-2:{height}",
+        "-c:v", "libx264", "-preset", "ultrafast", "-crf", "30", "-c:a", "aac", "-b:a", "96k",
+        "-movflags", "+faststart", str(out),
+    ])

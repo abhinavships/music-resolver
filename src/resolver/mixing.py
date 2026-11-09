@@ -126,13 +126,15 @@ def choose_role(regions: list[Region], duration: float, cfg: MixConfig) -> str:
 
 def mix(
     plan: MixPlan, original: np.ndarray, music: np.ndarray, sr: int, cfg: MixConfig = MixConfig(),
+    extra: np.ndarray | None = None,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, MixPlan]:
     """Level and duck the placed music under the clip audio, then set final loudness.
 
     `original` and `music` are (n, channels) on the clip timeline; `music` is
     placed and faded but not yet level-set. Returns the processed original,
     music stem and mix (the same final gain applied to all three, so stems sum
-    to the mix) and the plan with the resolved levels filled in.
+    to the mix) and the plan with the resolved levels filled in. `extra`
+    (the effects layer, F7) is added unducked and returned inside the music stem.
     """
     n = len(original)
     warnings = list(plan.warnings)
@@ -168,6 +170,8 @@ def mix(
     env = duck_envelope_db(n, sr, regions, depths, plan.attack_ms, plan.release_ms)
     music = music * (10 ** (env / 20))[:, None]
 
+    if extra is not None:
+        music = music + extra
     total = original + music
     gain = np.ones(n)
     mix_gain_db = 0.0

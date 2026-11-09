@@ -43,7 +43,7 @@ class IndexConfig(_Section):
 
 
 class EmbedConfig(_Section):
-    model: str = "laion/larger_clap_music"
+    model: str = "laion/clap-htsat-unfused"
     batch_size: int = 16
     zero_shot_scale: float = 100.0
 
@@ -67,6 +67,7 @@ class RetrieveConfig(_Section):
     length_penalty: float = 0.2
     max_per_artist: int = 1
     coverage_min_segments: int = 50
+    audio_query_weight: float = 3.0
 
 
 class NoMatchConfig(_Section):
@@ -134,10 +135,18 @@ class MixConfig(_Section):
 class SfxConfig(_Section):
     enabled: bool = False
     gain_db: float = -6.0
+    folder: str = "sfx/"
+    max_effects: int = 2
+    min_hit_score: float = 0.2
 
 
 class GenerationConfig(_Section):
     provider: str = "none"
+
+
+class SessionConfig(_Section):
+    preview_height: int = 360
+    different_neighbours: int = 20
 
 
 class VerifyConfig(_Section):
@@ -161,6 +170,7 @@ class Config(_Section):
     mix: MixConfig = MixConfig()
     sfx: SfxConfig = SfxConfig()
     generation: GenerationConfig = GenerationConfig()
+    session: SessionConfig = SessionConfig()
     verify: VerifyConfig = VerifyConfig()
 
 

@@ -1,7 +1,8 @@
 """Text and audio embeddings in one space (CLAP), L2-normalised.
 
 `Embedder` is the interface the index and retrieval use. `ClapEmbedder` wraps
-`laion/larger_clap_music`; tests pass a small deterministic embedder instead.
+`laion/clap-htsat-unfused` (the default; `laion/larger_clap_music` returns near-identical
+text embeddings for every prompt as published, checked 2026-11-09); tests pass a small deterministic embedder instead.
 Text embeddings are cached on disk by (model id, text).
 """
 
@@ -72,9 +73,9 @@ def clap_available() -> bool:
 
 
 class ClapEmbedder:
-    """`laion/larger_clap_music` through transformers `ClapModel` / `ClapProcessor`."""
+    """A CLAP checkpoint through transformers `ClapModel` / `ClapProcessor`."""
 
-    def __init__(self, model_id: str = "laion/larger_clap_music", batch_size: int = 16, device: str | None = None):
+    def __init__(self, model_id: str = "laion/clap-htsat-unfused", batch_size: int = 16, device: str | None = None):
         import torch
         from transformers import ClapModel, ClapProcessor
 

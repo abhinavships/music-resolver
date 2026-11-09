@@ -19,7 +19,7 @@ coverage_threshold = 0.25         # zero-shot cosine for "music with <instrument
 coverage_instruments = ["dhol", "tabla", "harmonium", "brass", "shehnai", "sitar", "taiko", "orchestral", "synth", "guitar", "piano"]
 
 [embed]
-model = "laion/larger_clap_music"
+model = "laion/clap-htsat-unfused"   # larger_clap_music gives degenerate text embeddings as published (checked 2026-11-09)
 batch_size = 16
 zero_shot_scale = 100.0           # logit scale for zero-shot tagging (vocal_prob)
 
@@ -41,6 +41,7 @@ tempo_penalty_max = 0.3
 length_penalty = 0.2
 max_per_artist = 1
 coverage_min_segments = 50
+audio_query_weight = 3.0          # reference audio / "like #N", relative to all text queries together
 
 [no_match]
 z_threshold = 2.5                  # tuned on half the eval set
@@ -98,10 +99,17 @@ original_gain_db_when_music = -6.0
 
 [sfx]
 enabled = false
-gain_db = -6.0
+gain_db = -6.0                    # effect peak level, dBFS before final loudness
+folder = "sfx/"                   # CC0 effects plus licences.csv
+max_effects = 2                   # one per secondary hit, at most this many
+min_hit_score = 0.2
 
 [generation]
 provider = "none"
+
+[session]
+preview_height = 360
+different_neighbours = 20         # "something completely different" also excludes this many nearest tracks (R13)
 
 [verify]
 max_hit_offset_s = 0.08
