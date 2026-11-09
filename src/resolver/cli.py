@@ -100,6 +100,108 @@ def cmd_brief(args: argparse.Namespace) -> int:
     return 0
 
 
+EXIT = {"ok": 0, "verify_failed": 1, "no_match": 2, "needs_input": 0, "error": 3, "render_failed": 1}
+
+
+def _session_ctx(args: argparse.Namespace):
+    from .app import make_context
+
+    cfg = config_mod.load(args.config)
+    ctx, notes = make_context(cfg, offline=getattr(args, "offline", False),
+                              previews=not getattr(args, "no_previews", False))
+    for n in notes:
+        print(f"note: {n}", file=sys.stderr)
+    return ctx, notes
+
+
+def _print_result(result, out: Path) -> int:
+    print(result.model_dump_json(indent=2))
+    print(f"\n{result.message}", file=sys.stderr)
+    for c in result.candidates:
+        print(f"  #{c.rank} {c.track.title} - {c.track.artist} [{c.track.licence}] {c.reason}"
+              f"{' | ' + '; '.join(c.warnings) if c.warnings else ''}", file=sys.stderr)
+    if (out / "review.html").exists():
+        print(f"review page: {out / 'review.html'}", file=sys.stderr)
+    return EXIT.get(result.status, 0)
+
+
+def _print_report(report, paths: dict) -> int:
+    for check in report.checks:
+        print(f"{'PASS' if check.passed else 'FAIL'}  {check.name}: {check.value} (target {check.target}) {check.detail}")
+    for note in report.skipped:
+        print(f"SKIP  {note}")
+    if report.attribution:
+        print(f"credit: {report.attribution}")
+    if paths.get("video"):
+        print(f"output: {paths['video']}")
+    return EXIT.get(report.status, 0)
+
+
+def _overrides(args: argparse.Namespace) -> dict:
+    out: dict = {}
+    if getattr(args, "hit", None) is not None:
+        out["hit"] = args.hit
+    if getattr(args, "speech", None):
+        out["speech"] = [tuple(map(float, item.split("-"))) for item in args.speech.split(",")]
+    return out
+
+
+def cmd_resolve(args: argparse.Namespace) -> int:
+    from . import session
+
+    ctx, notes = _session_ctx(args)
+    out = Path(args.out)
+    result = session.resolve(args.clip, args.prompt, out, ctx, reference=args.reference)
+    result.coverage_warnings.extend(notes)
+    _review(out)
+    return _print_result(result, out)
+
+
+def _review(out: Path) -> None:
+    try:
+        from .review import write_review
+        write_review(out)
+    except ImportError:
+        pass
+
+
+def cmd_refine(args: argparse.Namespace) -> int:
+    from . import session
+
+    ctx, _ = _session_ctx(args)
+    result = session.refine(args.session, args.instruction, ctx)
+    _review(Path(args.session))
+    return _print_result(result, Path(args.session))
+
+
+def cmd_pick(args: argparse.Namespace) -> int:
+    from . import session
+
+    ctx, _ = _session_ctx(args)
+    report, paths = session.pick(args.session, args.rank, ctx, _overrides(args))
+    return _print_report(report, paths)
+
+
+def cmd_skip(args: argparse.Namespace) -> int:
+    from . import session
+
+    ctx, _ = _session_ctx(args)
+    return _print_result(session.skip(args.session, ctx, args.reason), Path(args.session))
+
+
+def cmd_own(args: argparse.Namespace) -> int:
+    from . import session
+
+    ctx, _ = _session_ctx(args)
+    try:
+        report, paths = session.own(args.session, args.track, ctx, rights_confirmed=args.i_have_rights,
+                                    overrides=_overrides(args))
+    except PermissionError as err:
+        print(f"error: {err}", file=sys.stderr)
+        return 3
+    return _print_report(report, paths)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="resolver")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -134,6 +236,53 @@ def main(argv: list[str] | None = None) -> int:
     brief.add_argument("--no-cache", action="store_true")
     brief.add_argument("--config", help="resolver.toml (default: ./resolver.toml if present)")
     brief.set_defaults(func=cmd_brief)
+
+    def session_args(p, offline=True, previews=True):
+        p.add_argument("--config", help="resolver.toml (default: ./resolver.toml if present)")
+        if offline:
+            p.add_argument("--offline", action="store_true", help="offline brief (keyword map, no model)")
+        if previews:
+            p.add_argument("--no-previews", action="store_true", help="skip rendering preview videos")
+
+    resolve = sub.add_parser("resolve", help="brief + clip analysis + top 3 + previews + review page")
+    resolve.add_argument("clip")
+    resolve.add_argument("prompt")
+    resolve.add_argument("--reference", help="reference audio file (searched by sound, never placed)")
+    resolve.add_argument("--out", default="out")
+    session_args(resolve)
+    resolve.set_defaults(func=cmd_resolve)
+
+    refine = sub.add_parser("refine", help='edit the brief and search again ("more comic", "like #2")')
+    refine.add_argument("session")
+    refine.add_argument("instruction")
+    session_args(refine)
+    refine.set_defaults(func=cmd_refine)
+
+    pick = sub.add_parser("pick", help="fit, render and verify a candidate")
+    pick.add_argument("session")
+    pick.add_argument("rank", type=int)
+    pick.add_argument("--hit", type=float)
+    pick.add_argument("--speech")
+    session_args(pick, offline=False, previews=False)
+    pick.set_defaults(func=cmd_pick)
+
+    skip = sub.add_parser("skip", help="move to the next fallback option")
+    skip.add_argument("session")
+    skip.add_argument("--reason", default="skipped by user")
+    session_args(skip, offline=False, previews=False)
+    skip.set_defaults(func=cmd_skip)
+
+    own = sub.add_parser("own", help="use your own track (L7)")
+    own.add_argument("session")
+    own.add_argument("track")
+    own.add_argument("--i-have-rights", action="store_true")
+    own.add_argument("--hit", type=float)
+    own.add_argument("--speech")
+    session_args(own, offline=False, previews=False)
+    own.set_defaults(func=cmd_own)
+
+    tool = sub.add_parser("tool", help="agent contract: one JSON request on stdin, JSON on stdout")
+    tool.set_defaults(func=lambda a: __import__("resolver.tool", fromlist=["main"]).main())
 
     args = parser.parse_args(argv)
     return args.func(args)
